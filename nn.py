@@ -180,9 +180,9 @@ def main():
             ypred_i = [n(x) for i, x in enumerate(X_batch)] # this is where it is really slow (idk why)
                                                                                # speeds up when in shape (28, 28)
 
+            print(ypred_i[0])
             ypred = []
             for y in ypred_i:
-                print(y)
                 ypred.append(np.argmax(y))
 
             ypred = np.array(ypred)
