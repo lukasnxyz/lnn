@@ -5,14 +5,14 @@ base functionalities, I do plan on trying to make this an extremely efficient li
 accelerators and so forth.) For now, this is simply just a toy project for me to learn with.
 
 ### Quick start
-(None yet)
 ```python
+# None yet
 ```
 
 ### Components
 1. Very simple Tensor class
-Nodes + autograd
+    - Nodes + autograd
 2. Basic layer functionalities
-Neuron, layer, MLP
+    - Neuron, layer, MLP
 3. Minimal functions
-Cross-entropy loss, back propagation
+    - Cross-entropy loss, back propagation
