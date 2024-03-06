@@ -10,6 +10,6 @@ accelerators and so forth.) For now, this is simply just a toy project for me to
 ```
 
 ### Components
-1. Very simple Tensor class (Nodes + autograd)
+1. Very simple Tensor class (Tensor, operations, autograd)
 2. Basic layer functionalities (Neuron, layer, MLP)
 3. Minimal functions (Cross-entropy loss, back propagation)

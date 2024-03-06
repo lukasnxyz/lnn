@@ -1,4 +1,9 @@
+from __future__ import annotations
 import numpy as np
+
+# Todo:
+# - Implement function class as well for forward and backward pass functions
+
 
 class Tensor:
     def __init__(self, data, _children=()):
@@ -15,7 +20,7 @@ class Tensor:
     def __repr__(self):
         return f"Tensor(data: {self.data}, grad: {self.grad})"
 
-    def __add__(self, other):
+    def __add__(self, other) -> Tensor:
         other = other if isinstance(other, Tensor) else Tensor(other)
         out_data = np.add(self.data, other.data)
         out = Tensor(out_data, {self, other})
@@ -27,10 +32,25 @@ class Tensor:
 
         return out
 
-    def __radd__(self, other):
+    def __radd__(self, other) -> Tensor:
         return self + other
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> Tensor:
+        other = other if isinstance(other, Tensor) else Tensor(other)
+        out_data = self.data * other.data
+        out = Tensor(out_data, {self, other})
+
+        def _backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = _backward
+
+        return out
+
+    def __rmul__(self, other) -> Tensor:
+        return self * other
+
+    def __matmul__(self, other) -> Tensor:
         other = other if isinstance(other, Tensor) else Tensor(other)
         out_data = np.matmul(self.data, other.data)
         out = Tensor(out_data, {self, other})
@@ -38,12 +58,15 @@ class Tensor:
         def _backward():
             self.grad += np.matmul(other.data, out.grad)
             other.grad += np.matmul(self.data, out.grad)
+
         out._backward = _backward
 
         return out
 
-    def __rmul__(self, other):
-        return np.matmul(self, other)
+    def __rmatmul__(self, other) -> Tensor:
+        return self @ other
+
+
 
 
 
@@ -101,10 +124,16 @@ class Tensor:
         for node in reversed(topo):
             node._backward()
 
+
+
+
+
+
+
 def main():
     mat1 = Tensor([[1.3, 2.1, 3.8], [4.3, 5.9, 6.2]])
     mat2 = Tensor([[2.3, 3.1], [9.8, 1.3], [6.9, 7.2]])
-    mat3 = mat1 * mat2
+    mat3 = mat1 @ mat2
     print(mat1)
     print(mat2)
     print(mat3)
