@@ -3,6 +3,7 @@ import numpy as np
 
 # Todo:
 # - Implement function class as well for forward and backward pass functions
+# - Tensor.transpose
 
 
 class Tensor:
@@ -66,77 +67,51 @@ class Tensor:
     def __rmatmul__(self, other) -> Tensor:
         return self @ other
 
-
-
-
-
-
-
-
-
-
-    def __neg__(self): # -self
+    def __neg__(self):
         return self * -1
 
-    def __sub__(self, other): # self - other
+    def __sub__(self, other):
         return self + (-other)
 
     def __pow__(self, other):
         assert isinstance(other, (int, np.float32)), "only supporting int/np.float32 powers for now"
-        out = Value(self.data**other, (self,))
+        out_data = self.data ** other
+        out = Tensor(out_data, (self,))
 
         def _backward():
-            self.grad += other * (self.data ** (other - 1)) * out.grad
+            self.grad += (other * (self.data ** (other - 1))) @ out.grad
         out._backward = _backward
 
         return out
 
-    def __truediv__(self, other): # self / other
+    def __truediv__(self, other):
         return self * other**-1
 
     def relu(self):
         x = self.data
-        relu = np.maximum(0, self.data)
-        out = Value(relu, (self, ))
+        out_data = np.maximum(0, self.data)
+        out = Tensor(out_data, (self, ))
 
         def _backward():
-            self.grad += 0 if x < 0 else 1 # found online
+            self.grad += 0 if x < 0 else 1
         out._backward = _backward
 
         return out
 
-    # One problem with this is if we reuse variables, then their gradients are stored and reused for
-    # different equations
-    # This is solved in the _backward() functions of __add__, __mul__, and tanh by accumulating the
-    # gradients with += instead of just resetting them with = every time
     def backward(self):
         topo = []
         visited = set()
+
         def build_topo(v):
             if v not in visited:
                 visited.add(v)
                 for child in v._prev:
                     build_topo(child)
                 topo.append(v)
+
         build_topo(self)
 
         self.grad = 1.0
+
         for node in reversed(topo):
             node._backward()
-
-
-
-
-
-
-
-def main():
-    mat1 = Tensor([[1.3, 2.1, 3.8], [4.3, 5.9, 6.2]])
-    mat2 = Tensor([[2.3, 3.1], [9.8, 1.3], [6.9, 7.2]])
-    mat3 = mat1 @ mat2
-    print(mat1)
-    print(mat2)
-    print(mat3)
-
-if __name__ == "__main__":
-    main()
