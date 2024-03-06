@@ -5,6 +5,14 @@ base functionalities, I do plan on trying to make this an extremely efficient li
 accelerators and so forth.) For now, this is simply just a toy project for me to learn with.
 
 ### Quick start
+Setup virtual enviornment
+```bash
+cd lnn/
+python3 -m venv tf-virtual-env
+pip3 install keras tensorflow
+source nn-virtual-env/bin/activate
+```
+
 ```python
 # None yet
 ```

@@ -1,10 +1,9 @@
 from __future__ import annotations
 import numpy as np
 
-# Todo:
-# - Implement function class as well for forward and backward pass functions
-# - Tensor.transpose
-
+#class Function:
+#   def forward(self):
+#   def backward(self):
 
 class Tensor:
     def __init__(self, data, _children=()):
@@ -79,13 +78,15 @@ class Tensor:
         out = Tensor(out_data, (self,))
 
         def _backward():
-            self.grad += (other * (self.data ** (other - 1))) @ out.grad
+            self.grad += other * (self.data ** (other - 1)) * out.grad
         out._backward = _backward
 
         return out
 
     def __truediv__(self, other):
         return self * other**-1
+
+    #def transpose(self):
 
     def relu(self):
         x = self.data
@@ -97,6 +98,8 @@ class Tensor:
         out._backward = _backward
 
         return out
+
+    #def sigmoid(self):
 
     def backward(self):
         topo = []
