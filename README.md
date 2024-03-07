@@ -7,10 +7,9 @@ accelerators and so forth.) For now, this is simply just a toy project for me to
 ### Quick start
 Setup virtual enviornment
 ```bash
-cd lnn/
-python3 -m venv tf-virtual-env
-pip3 install keras tensorflow
-source nn-virtual-env/bin/activate
+python3 -m venv venv_lnn
+source venv_lnn/bin/activate
+pip3 install -r requirements.txt
 ```
 
 ```python

@@ -2,4 +2,4 @@
 data/
 __pycache__/
 notebooks/.ipynb_checkpoints/
-nn-virtual-env/
+venv_lnn/

@@ -8,7 +8,7 @@ class Neuron:
         self.b = Tensor(random.uniform(-1, 1))
 
     def __call__(self, x):
-        act = sum((wi*xi for wi, xi in zip(self.w, x)), self.b)
+        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
         out = act.relu()
         return out
 
@@ -71,7 +71,7 @@ def main():
 
             # MSE Loss
             loss = sum((yact - yp)**2 for yp, yact in zip(Y_batch, ypred))
-            print("loss:", loss.data)
+            print("loss: %.3f" % (loss.data))
 
             # backward pass
             for p in n.parameters():
@@ -82,7 +82,6 @@ def main():
             lr = 0.001
             for p in n.parameters():
                 p.data -= lr * p.grad # this is basically the optimizer
-        print("loss: %.4f" % (loss.data))
 
 if __name__ == "__main__":
     main()
