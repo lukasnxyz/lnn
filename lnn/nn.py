@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from tensor import Tensor
+from tqdm import trange
 
 class Neuron:
     def __init__(self, nin):
@@ -46,19 +47,20 @@ def main():
     from keras.datasets import mnist
     (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-    #X_train = X_train.reshape(X_train.shape[0], -1)
-    #X_test = X_test.reshape(X_test.shape[0], -1)
+    X_train = X_train.reshape(X_train.shape[0], -1)
+    X_test = X_test.reshape(X_test.shape[0], -1)
 
     X_train = Tensor(X_train)
     X_test = Tensor(X_test)
     Y_train = Tensor(Y_train)
-    n = MLP(1, [4, 4, 1])
+
+    n = MLP(1, [2, 1])
 
     epochs = 2
-    batch_size = 5
+    batch_size = 32
 
     for epoch in range(epochs):
-        for i in range(0, len(X_train.data), batch_size):
+        for i in (t := trange(0, len(X_train.data), batch_size)):
             X_batch = X_train.data[i:i+batch_size]
             Y_batch = Y_train.data[i:i+batch_size]
 
@@ -70,18 +72,22 @@ def main():
                 ypred.append(Tensor(np.argmax(y)))
 
             # MSE Loss
-            loss = sum((yact - yp)**2 for yp, yact in zip(Y_batch, ypred))
-            print("loss: %.3f" % (loss.data))
+            #loss = sum((print(type(yact.data), type(yp)), (yact - yp)**2) for yp, yact in zip(Y_batch, ypred)) # subtraction overflow here
+            loss = sum((yact - yp)**2 for yp, yact in zip(Y_batch, ypred)) # subtraction overflow here
+            t.set_description("loss: %.3f" % (loss.data))
 
             # backward pass
             for p in n.parameters():
                 p.grad = 0.0
-            loss.backward()
+            loss.backward() # this isn't working because all the gradients are still 0 afterwards
+
+            #for p in n.parameters():
+                #print(p.grad)
 
             # update
-            lr = 0.001
+            lr: np.float32 = 0.001 # this being a python float slowed everything down
             for p in n.parameters():
-                p.data -= lr * p.grad # this is basically the optimizer
+                p.data += -lr * p.grad # this is basically the optimizer
 
 if __name__ == "__main__":
     main()

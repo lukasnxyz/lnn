@@ -7,10 +7,10 @@ import numpy as np
 
 class Tensor:
     def __init__(self, data, _children=()):
-        if isinstance(data, np.ndarray):
-            self.data = data
-        else:
-            self.data = np.array(data, dtype=np.float32)
+        #if isinstance(data, np.ndarray):
+            #self.data = data
+        #else:
+        self.data = np.array(data, dtype=np.float32)
 
         self.grad = np.zeros(self.data.shape, dtype=np.float32)
 
@@ -22,12 +22,14 @@ class Tensor:
 
     def __add__(self, other) -> Tensor:
         other = other if isinstance(other, Tensor) else Tensor(other)
-        out_data = np.add(self.data, other.data)
+        #out_data = np.add(self.data, other.data)
+        out_data = self.data + other.data
         out = Tensor(out_data, {self, other})
 
         def _backward():
-            self.grad += 1.0 * out.grad
-            other.grad += 1.0 * out.grad
+            self.grad += np.float32(1.0) * out.grad
+            other.grad += np.float32(1.0) * out.grad
+            #print(self.grad, other.grad)
         out._backward = _backward
 
         return out
@@ -43,6 +45,7 @@ class Tensor:
         def _backward():
             self.grad += other.data * out.grad
             other.grad += self.data * out.grad
+            #print(self.grad, other.grad)
         out._backward = _backward
 
         return out
@@ -50,24 +53,8 @@ class Tensor:
     def __rmul__(self, other) -> Tensor:
         return self * other
 
-    def __matmul__(self, other) -> Tensor:
-        other = other if isinstance(other, Tensor) else Tensor(other)
-        out_data = np.matmul(self.data, other.data)
-        out = Tensor(out_data, {self, other})
-
-        def _backward():
-            self.grad += np.matmul(other.data, out.grad)
-            other.grad += np.matmul(self.data, out.grad)
-
-        out._backward = _backward
-
-        return out
-
-    def __rmatmul__(self, other) -> Tensor:
-        return self @ other
-
     def __neg__(self):
-        return self * -1
+        return self * np.float32(-1.0)
 
     def __sub__(self, other):
         return self + (-other)
