@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 import numpy as np
 
 #class Function:
@@ -7,10 +8,9 @@ import numpy as np
 
 class Tensor:
     def __init__(self, data, _children=()):
-        #if isinstance(data, np.ndarray):
-            #self.data = data
-        #else:
         self.data = np.array(data, dtype=np.float32)
+        if self.data.shape == ():
+            self.data = self.data.reshape((1,))
 
         self.grad = np.zeros(self.data.shape, dtype=np.float32)
 
@@ -22,14 +22,12 @@ class Tensor:
 
     def __add__(self, other) -> Tensor:
         other = other if isinstance(other, Tensor) else Tensor(other)
-        #out_data = np.add(self.data, other.data)
         out_data = self.data + other.data
         out = Tensor(out_data, {self, other})
 
         def _backward():
-            self.grad += np.float32(1.0) * out.grad
-            other.grad += np.float32(1.0) * out.grad
-            #print(self.grad, other.grad)
+            self.grad += 1.0 * out.grad
+            other.grad += 1.0 * out.grad
         out._backward = _backward
 
         return out
@@ -39,13 +37,12 @@ class Tensor:
 
     def __mul__(self, other) -> Tensor:
         other = other if isinstance(other, Tensor) else Tensor(other)
-        out_data = self.data * other.data
+        out_data = np.matmul(self.data, other.data)
         out = Tensor(out_data, {self, other})
 
         def _backward():
-            self.grad += other.data * out.grad
-            other.grad += self.data * out.grad
-            #print(self.grad, other.grad)
+            self.grad += np.matmul(other.data, out.grad)
+            other.grad += np.matmul(self.data, out.grad)
         out._backward = _backward
 
         return out
@@ -54,7 +51,7 @@ class Tensor:
         return self * other
 
     def __neg__(self):
-        return self * np.float32(-1.0)
+        return self * -1.0
 
     def __sub__(self, other):
         return self + (-other)
@@ -74,6 +71,17 @@ class Tensor:
         return self * other**-1
 
     #def transpose(self):
+
+    def tanh(self):
+        x = self.data
+        t = (math.exp(2*x) - 1)/(math.exp(2*x) + 1)
+        out = Tensor(t, (self, ))
+
+        def _backward():
+            self.grad += (1.0 - t**2.0) * out.grad
+        out._backward = _backward
+
+        return out
 
     def relu(self):
         x = self.data
