@@ -10,7 +10,7 @@ class Neuron:
 
     def __call__(self, x):
         act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
-        out = act.relu()
+        out = act.tanh()
         return out
 
     def parameters(self):
