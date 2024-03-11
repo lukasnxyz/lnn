@@ -83,6 +83,7 @@ class Tensor:
 
         return out
 
+    # doesn't work
     def relu(self):
         x = self.data
         out_data = np.maximum(0, self.data)
