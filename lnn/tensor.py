@@ -9,8 +9,8 @@ import numpy as np
 class Tensor:
     def __init__(self, data, _children=()):
         self.data = np.array(data, dtype=np.float32)
-        if self.data.shape == ():
-            self.data = self.data.reshape((1,))
+        #if self.data.shape == ():
+            #self.data = self.data.reshape((1,))
 
         self.grad = np.zeros(self.data.shape, dtype=np.float32)
 
@@ -89,7 +89,7 @@ class Tensor:
         out = Tensor(out_data, (data, ))
 
         def _backward():
-            self.grad += 0 if x < 0 else 1
+            self.grad += (0 if x < 0 else 1) * out.grad
         out._backward = _backward
 
         return out

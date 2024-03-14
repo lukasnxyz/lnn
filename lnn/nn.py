@@ -4,17 +4,17 @@ from tensor import Tensor
 
 class Neuron:
     def __init__(self, nin, actf=None):
-        self.w = [Tensor(random.uniform(-1, 1)) for _ in range(nin)] # this may cause problems with orgate rn
+        self.w = Tensor([random.uniform(-1, 1) for _ in range(nin)]) # this may cause problems with orgate rn
         self.b = Tensor(random.uniform(-1, 1))
         self.actf = actf if actf is not None else Tensor.relu
 
     def __call__(self, x) -> Tensor:
-        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b) # here too problems
+        act = self.w * x + self.b
         out = self.actf(act)
         return out
 
     def parameters(self) -> Tensor:
-        return self.w + [self.b]
+        return self.w + self.b
 
 # A vertical layer of neurons
 class Layer:
@@ -22,8 +22,8 @@ class Layer:
         self.neurons = [Neuron(nin, actf=actf) for _ in range(nout)]
 
     def __call__(self, x):
-        outs = [n(x) for n in self.neurons]
-        return outs[0] if len(outs) == 1 else outs
+        outs = Tensor([n(x).data for n in self.neurons])
+        return outs[0] if len(outs.data) == 1 else outs
 
     def parameters(self):
         return [p for neuron in self.neurons for p in neuron.parameters()]
@@ -42,7 +42,45 @@ class MLP:
     def parameters(self):
         return [p for layer in self.layers for p in layer.parameters()]
 
+class MNIST:
+    def __init__(self):
+        self.h1 = Layer(784, 128)
+        self.act1 = Tensor.relu
+        self.output = Layer(128, 10)
+        self.act_output = Tensor.relu
+
+    def forward(self, X):
+        X = self.act1(self.h1(X))
+        X = self.act_output(self.output(X))
+
+        return X
+
 # TESTING HERE
+def main():
+    from keras.datasets import mnist
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+
+    X_train = X_train.reshape(X_train.shape[0], -1)
+    X_test = X_test.reshape(X_test.shape[0], -1)
+
+    model = MNIST()
+
+    epochs = 1
+    batch_size = 5
+
+    for epoch in range(epochs):
+        for i in range(0, len(X_train), batch_size):
+            X_batch = Tensor(X_train[i:i+batch_size])
+            Y_batch = Tensor(Y_train[i:i+batch_size])
+            X_batch.data = X_batch.data.transpose()
+
+            out = model.forward(X_batch)
+
+            print(out)
+            print(Y_batch)
+            return
+
+'''
 def main():
     from keras.datasets import mnist
     (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
@@ -65,21 +103,15 @@ def main():
             X_batch = X_train[i:i+batch_size]
             Y_batch = Y_train[i:i+batch_size]
 
-            #ypred = [n(x) for x in X_batch]
-            l = n(X_batch[0])
-
-            print(l)
-            #print(ypred)
-            print(Y_batch)
+            r1 = n(X_batch[0])
+            print(r1)
             return
 
-            '''
-            ypred = []
-            for i, x in enumerate(X_batch):
-                nx = n(x)
-                nxs = [item.data[0] for item in nx]
-                ypred.append(nxs)
-            '''
+            #ypred = [n(x) for x in X_batch]
+
+            #print(ypred)
+            #print(Y_batch)
+            #return
 
             # MSE Loss
             # loss has to be a single number here
@@ -96,6 +128,7 @@ def main():
             lr: np.float32 = 0.01 # this being a python float slowed everything down
             for p in n.parameters():
                 p.data += -lr * p.grad # this is basically the optimizer
+'''
 
 if __name__ == "__main__":
     main()

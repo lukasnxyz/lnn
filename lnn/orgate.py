@@ -27,6 +27,10 @@ def main():
         # this should be a Tensor with a 2d array, not a 2d array of Tensors
         ypred = [n(x) for i, x in enumerate(X_train.data)] # forward pass
 
+        print(ypred)
+        print(Y_train)
+        return
+
         loss = sum((yact - yp)**2 for yp, yact in zip(Y_train.data, ypred))
         t.set_description("loss: %.5f" % (loss.data[0]))
 
