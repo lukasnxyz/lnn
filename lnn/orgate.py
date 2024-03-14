@@ -19,14 +19,13 @@ def main():
         [1.0],
         [1.0]])
 
-    n = MLP(2, [4, 4, 1])
+    n = MLP(2, [4, 4, 1], actf=Tensor.tanh)
 
     epochs = 2000
 
     for epoch in (t := trange(epochs)):
-        # forward pass
-        # this should be a tensor of a 2d array batch_size x 10
-        ypred = [n(x) for i, x in enumerate(X_train.data)]
+        # this should be a Tensor with a 2d array, not a 2d array of Tensors
+        ypred = [n(x) for i, x in enumerate(X_train.data)] # forward pass
 
         loss = sum((yact - yp)**2 for yp, yact in zip(Y_train.data, ypred))
         t.set_description("loss: %.5f" % (loss.data[0]))

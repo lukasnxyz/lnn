@@ -70,24 +70,23 @@ class Tensor:
     def __truediv__(self, other):
         return self * other**-1
 
-    #def transpose(self):
-
-    def tanh(self):
-        x = self.data
+    def tanh(data):
+        x = data.data
         t = (math.exp(2*x) - 1)/(math.exp(2*x) + 1)
-        out = Tensor(t, (self, ))
+        out = Tensor(t, (data, ))
 
         def _backward():
-            self.grad += (1.0 - t**2.0) * out.grad
+            data.grad += (1.0 - t**2.0) * out.grad
         out._backward = _backward
 
         return out
 
-    # doesn't work
-    def relu(self):
-        x = self.data
-        out_data = np.maximum(0, self.data)
-        out = Tensor(out_data, (self, ))
+
+    @staticmethod
+    def relu(data): # doesn't work
+        x = data.data
+        out_data = np.maximum(0, x)
+        out = Tensor(out_data, (data, ))
 
         def _backward():
             self.grad += 0 if x < 0 else 1

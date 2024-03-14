@@ -3,25 +3,23 @@ import random
 from tensor import Tensor
 
 class Neuron:
-    def __init__(self, nin):
-        self.w = [Tensor(random.uniform(-1, 1)) for _ in range(nin)]
+    def __init__(self, nin, actf=None):
+        self.w = [Tensor(random.uniform(-1, 1)) for _ in range(nin)] # this may cause problems with orgate rn
         self.b = Tensor(random.uniform(-1, 1))
+        self.actf = actf if actf is not None else Tensor.relu
 
-    def __call__(self, x):
-        #print(self.w)
-        #print(self.b)
-        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
-        #print("act:", act)
-        out = act.tanh()
+    def __call__(self, x) -> Tensor:
+        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b) # here too problems
+        out = self.actf(act)
         return out
 
-    def parameters(self):
+    def parameters(self) -> Tensor:
         return self.w + [self.b]
 
 # A vertical layer of neurons
 class Layer:
-    def __init__(self, nin, nout):
-        self.neurons = [Neuron(nin) for _ in range(nout)]
+    def __init__(self, nin, nout, actf=None):
+        self.neurons = [Neuron(nin, actf=actf) for _ in range(nout)]
 
     def __call__(self, x):
         outs = [n(x) for n in self.neurons]
@@ -32,9 +30,9 @@ class Layer:
 
 # Multi-Layer Perceptron (the network of hidden layers basically)
 class MLP:
-    def __init__(self, nin, nouts): # list of nouts
+    def __init__(self, nin, nouts, actf=None): # list of nouts
         sz = [nin] + nouts
-        self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]
+        self.layers = [Layer(sz[i], sz[i+1], actf=actf) for i in range(len(nouts))]
 
     def __call__(self, x):
         for layer in self.layers:
@@ -56,6 +54,7 @@ def main():
     #X_test = Tensor(X_test)
     #Y_train = Tensor(Y_train)
 
+    # how do I model this correctly? I'm not understanding
     n = MLP(784, [4, 10])
 
     epochs = 1
@@ -66,11 +65,14 @@ def main():
             X_batch = X_train[i:i+batch_size]
             Y_batch = Y_train[i:i+batch_size]
 
-            yt = n(X_batch[0])
-            print(yt)
+            #ypred = [n(x) for x in X_batch]
+            l = n(X_batch[0])
+
+            print(l)
+            #print(ypred)
+            print(Y_batch)
             return
 
-            #ypred = [n(x) for x in X_batch]
             '''
             ypred = []
             for i, x in enumerate(X_batch):
@@ -78,10 +80,6 @@ def main():
                 nxs = [item.data[0] for item in nx]
                 ypred.append(nxs)
             '''
-
-            print(ypred)
-            print(Y_batch)
-            return
 
             # MSE Loss
             # loss has to be a single number here
