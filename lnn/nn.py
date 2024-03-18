@@ -4,29 +4,29 @@ from tensor import Tensor
 
 class Neuron:
 	def __init__(self, nin, actf=None):
-		self.w = [Tensor(random.uniform(-1, 1)) for _ in range(nin)] # this may cause problems with orgate rn
+		self.w = Tensor([random.uniform(-1, 1) for _ in range(nin)]) # each neuron should have a single tensor for weights and one for biases
 		self.b = Tensor(random.uniform(-1, 1))
 		self.actf = actf if actf is not None else Tensor.relu
 
-		def __call__(self, x) -> Tensor:
-			act = self.w * x + self.b
-			out = self.actf(act)
-			return out
+	def __call__(self, x: Tensor) -> Tensor:
+		out = self.w * x.data.transpose() + self.b
+		act = self.actf(out)
+		return act
 
-		def parameters(self) -> Tensor:
-			return self.w + self.b
+	def parameters(self) -> Tensor:
+		return self.w + self.b
 
 # A vertical layer of neurons
 class Layer:
 	def __init__(self, nin, nout, actf=None):
 		self.neurons = [Neuron(nin, actf=actf) for _ in range(nout)]
 
-		def __call__(self, x):
-			outs = [n(x) for n in self.neurons]
-			return outs[0] if len(outs) == 1 else outs
+	def __call__(self, x: Tensor):
+		outs = [n(x) for n in self.neurons] # array of neurons
+		return outs[0] if len(outs) == 1 else outs
 
-		def parameters(self):
-			return [p for neuron in self.neurons for p in neuron.parameters()]
+	def parameters(self):
+		return [p for neuron in self.neurons for p in neuron.parameters()]
 
 # Multi-Layer Perceptron (the network of hidden layers basically)
 class MLP:
@@ -34,26 +34,30 @@ class MLP:
 		sz = [nin] + nouts
 		self.layers = [Layer(sz[i], sz[i+1], actf=actf) for i in range(len(nouts))]
 
-		def __call__(self, x):
-			for layer in self.layers:
-				x = layer(x)
-			return x
+	def __call__(self, x):
+		for layer in self.layers:
+			x = layer(x)
+		return x
 
-		def parameters(self):
-			return [p for layer in self.layers for p in layer.parameters()]
+	def parameters(self):
+		return [p for layer in self.layers for p in layer.parameters()]
 
 class MNIST:
 	def __init__(self):
 		self.h1 = Layer(784, 128)
-		self.act1 = Tensor.relu
+		self.act1 = Layer.relu
+		self.h2 = Layer(128, 128)
+		self.act2 = Layer.relu
 		self.output = Layer(128, 10)
-		self.act_output = Tensor.relu
+		self.act_output = Layer.relu
 
-		def forward(self, X):
-			X = self.act1(self.h1(X))
-			X = self.act_output(self.output(X))
+	def forward(self, X):
+		X = self.h1(X)
+		X = Layer.relu(X)
+		X = Layer.relu(self.h2(X))
+		X = Layer.relu(self.output(X))
 
-			return X
+		return X
 
 # TESTING HERE
 def main():
