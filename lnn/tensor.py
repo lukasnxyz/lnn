@@ -2,10 +2,6 @@ from __future__ import annotations
 import math
 import numpy as np
 
-#class Function:
-#   def forward(self):
-#   def backward(self):
-
 class Tensor:
 	def __init__(self, data, _children=()):
 		self.data = np.array(data, dtype=np.float32)

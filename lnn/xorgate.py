@@ -3,16 +3,19 @@ from tensor import Tensor
 import numpy as np
 from tqdm import trange
 
-# Works if you change activation function to tanh in nn.py
-
 class XOR:
 	def __init__(self):
-		self.h1 = Layer(2, 2)
-		self.output = Layer(2, 1)
+		self.h1 = Layer(2, 4)
+		self.act1 = Layer.actf
+		self.output = Layer(4, 1)
+		self.act_output = Layer.actf
 
 	def forward(self, X):
-		X = self.output(self.h1(X))
-
+		X = self.h1(X)
+		X = self.act1(X, actf=Tensor.relu)
+		X = self.output(X)
+		exit()
+		X = self.act_ouput(X, actf=Tensor.relu)
 		return X
 
 def main():
@@ -33,7 +36,7 @@ def main():
 
 	for epoch in (t := trange(epochs)):
 		out = model.forward(X_train)
-		print(out)
+		#print(out)
 		return
 
 		loss = sum((yact - yp)**2 for yp, yact in zip(Y_train.data, ypred))
