@@ -14,8 +14,8 @@ class Neuron:
 	def __repr__(self):
 		return f"Neuron: (w: {self.w.data.shape} b: {self.b.data.shape})"
 
-	#def parameters(self) -> Tensor:
-		#return self.w + self.b
+	def parameters(self) -> Tensor:
+		return self.w + self.b
 
 # A vertical layer of neurons
 class Layer:
@@ -38,8 +38,8 @@ class Layer:
 		outs = [n(neuron(x)) for n, neuron in zip(self.neurons, x)]
 		return outs[0] if len(outs) == 1 else outs
 
-	#def parameters(self):
-		#return [p for neuron in self.neurons for p in neuron.parameters()]
+	def parameters(self):
+		return [p for neuron in self.neurons for p in neuron.parameters()]
 
 	@staticmethod
 	def actf(x, actf=Tensor.relu):
