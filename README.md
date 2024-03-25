@@ -4,7 +4,7 @@ make the building and modeling of neural networks extremely easy and minimal. (A
 base functionalities, I do plan on trying to make this an extremely efficient library as well with
 accelerators and so forth.) For now, this is simply just a toy project for me to learn with.
 
-Inspired by [tinygrad](https://github.com/tinygrad/tinygrad/) & [micrograd](https://github.com/karpathy/micrograd).
+Inspired by [tinygrad](https://github.com/tinygrad/tinygrad/tree/c900b6ec36df87d25bd67d704b95826b9cc18ce2) & [micrograd](https://github.com/karpathy/micrograd).
 
 ### Quick start
 Setup virtual enviornment
